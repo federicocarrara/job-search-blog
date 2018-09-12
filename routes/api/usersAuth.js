@@ -4,6 +4,8 @@ const UserAuth = require("../../models/UserAuth").UserAuth;
 const bcrypt = require("bcryptjs");
 const keys = require("../../config/keys");
 const jwt = require("jsonwebtoken");
+const passport = require("passport");
+const validateRegisterInput = require("../../validation/register");
 
 // route:   api/userAuth
 // desc:    test usersAuth route
@@ -14,9 +16,14 @@ router.get("/", (req, res) => res.send("usersAuth route"));
 // desc:    register user
 // access:  public
 router.post("/register", (req, res) => {
+  const { errors, isValid } = validateRegisterInput(req.body);
+  if (!isValid) {
+    return res.status(400).send(errors);
+  }
   UserAuth.findOne({ email: req.body.email }).then(user => {
     if (user) {
-      return res.status(400).send("email already exist");
+      errors.email = "email already exist";
+      return res.status(400).send(errors);
     } else {
       const newUser = new UserAuth({
         name: req.body.name,
@@ -28,7 +35,7 @@ router.post("/register", (req, res) => {
       bcrypt.genSalt(10, (err, salt) => {
         bcrypt.hash(newUser.password, salt, (err, hash) => {
           if (err) {
-            res.send(err);
+            return res.send(err);
           }
           newUser.password = hash;
           // create newUser
@@ -54,17 +61,36 @@ router.post("/login", (req, res) => {
     bcrypt.compare(password, user.password).then(matchedPwd => {
       if (matchedPwd) {
         // Sign Token
-        const payload = { id: user.id, name: user.name };
-        jwt.sign(payload, keys.secret, { expiresIn: 3600 }, (err, token) => {
-          res.json({
-            token: `Bearer ${token}`
-          });
-        });
+        const payload = { id: user.id };
+        jwt.sign(
+          payload,
+          keys.secretOrKey,
+          { expiresIn: 3600 },
+          (err, token) => {
+            if (err) {
+              return res.send(err);
+            }
+            res.send({
+              token: `Bearer ${token}`
+            });
+          }
+        );
       } else {
-        return res.status(404).send("wrong password");
+        return res.status(400).send("wrong password");
       }
     });
   });
 });
+
+// route:   api/usersAuth/current
+// desc:    get current user
+// access:  private
+router.get(
+  "/current",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    res.send({ id: req.user.id });
+  }
+);
 
 module.exports = router;

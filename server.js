@@ -1,8 +1,9 @@
+const port = process.env.PORT || 3000;
+
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
-
-const port = process.env.PORT || 3000;
+const passport = require("passport");
 
 const db = require("./config/keys").mongoURI;
 const posts = require("./routes/api/posts");
@@ -10,8 +11,12 @@ const profiles = require("./routes/api/profiles");
 const usersAuth = require("./routes/api/usersAuth");
 
 const app = express();
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+app.use(passport.initialize());
+require("./config/passport")(passport);
 
 // connect mongoDB
 mongoose
