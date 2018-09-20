@@ -23,6 +23,5 @@ const UserAuthSchema = new Schema({
     default: Date.now
   }
 });
-
 // mLAb is going to make the collection plural automatically, in this case "userAuths"
-module.exports.UserAuth = mongoose.model("userAuth", UserAuthSchema);
+module.exports = mongoose.model("userAuth", UserAuthSchema);

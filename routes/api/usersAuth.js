@@ -1,13 +1,14 @@
 const express = require("express");
 const router = express.Router();
-const UserAuth = require("../../models/UserAuth").UserAuth;
+const UserAuth = require("../../models/UserAuth");
 const bcrypt = require("bcryptjs");
 const keys = require("../../config/keys");
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
 const validateRegisterInput = require("../../validation/register");
+const validateLoginInput = require("../../validation/login");
 
-// route:   api/userAuth
+// route:   api/usersAuth
 // desc:    test usersAuth route
 // access:  public
 router.get("/", (req, res) => res.send("usersAuth route"));
@@ -52,6 +53,10 @@ router.post("/register", (req, res) => {
 // desc:    login user / generate JWT token
 // access:  public
 router.post("/login", (req, res) => {
+  const { errors, isValid } = validateLoginInput(req.body);
+  if (!isValid) {
+    return res.status(400).send(errors);
+  }
   const email = req.body.email;
   const password = req.body.password;
   UserAuth.findOne({ email }).then(user => {
@@ -83,13 +88,13 @@ router.post("/login", (req, res) => {
 });
 
 // route:   api/usersAuth/current
-// desc:    get current user
+// desc:    get current user name
 // access:  private
 router.get(
   "/current",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    res.send({ id: req.user.id });
+    res.send({ id: req.user.name });
   }
 );
 

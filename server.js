@@ -27,6 +27,8 @@ mongoose
   .then(() => console.log("db connected"))
   .catch(err => console.log(err));
 
+mongoose.set("useFindAndModify", false);
+
 app.use("/api/posts", posts);
 app.use("/api/profiles", profiles);
 app.use("/api/usersAuth", usersAuth);
