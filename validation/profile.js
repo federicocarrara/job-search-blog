@@ -12,7 +12,6 @@ module.exports = validateProfileInput = data => {
   if (isEmpty(data.skills)) {
     errors.skills = "skills required";
   }
-
   return {
     errors,
     isValid: isEmpty(errors)

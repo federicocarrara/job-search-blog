@@ -8,12 +8,7 @@ const passport = require("passport");
 const validateRegisterInput = require("../../validation/register");
 const validateLoginInput = require("../../validation/login");
 
-// route:   api/usersAuth
-// desc:    test usersAuth route
-// access:  public
-router.get("/", (req, res) => res.send("usersAuth route"));
-
-// route:   api/usersAuth/register
+// route:   POST api/usersAuth/register
 // desc:    register user
 // access:  public
 router.post("/register", (req, res) => {
@@ -49,7 +44,7 @@ router.post("/register", (req, res) => {
   });
 });
 
-// route:   api/usersAuth/login
+// route:   POST api/usersAuth/login
 // desc:    login user / generate JWT token
 // access:  public
 router.post("/login", (req, res) => {
@@ -87,7 +82,7 @@ router.post("/login", (req, res) => {
   });
 });
 
-// route:   api/usersAuth/current
+// route:   GET api/usersAuth/current
 // desc:    get current user name
 // access:  private
 router.get(

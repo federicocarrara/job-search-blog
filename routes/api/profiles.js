@@ -5,6 +5,8 @@ const passport = require("passport");
 const Profile = require("../../models/Profile");
 const UserAuth = require("../../models/UserAuth");
 const validateProfileInput = require("../../validation/profile");
+const validateEducationInput = require("../../validation/education");
+const validateExperienceInput = require("../../validation/experience");
 
 // route:   GET api/profiles
 // desc:    get current user profile
@@ -90,15 +92,16 @@ router.post(
     if (!isValid) {
       return res.status(400).send(errors);
     }
-    const profileFields = {};
-    profileFields.user = req.user;
-    if (req.body.handle) profileFields.handle = req.body.handle;
-    if (req.body.bio) profileFields.bio = req.body.bio;
-    if (req.body.company) profileFields.company = req.body.company;
-    if (req.body.location) profileFields.location = req.body.location;
-    if (req.body.status) profileFields.status = req.body.status;
-    if (req.body.skills) profileFields.skills = req.body.skills.split(",");
-    if (req.body.github) profileFields.github = req.body.github;
+    const profileFields = {
+      user: req.user,
+      handle: req.body.handle,
+      bio: req.body.bio,
+      company: req.body.company,
+      location: req.body.location,
+      status: req.body.status,
+      skills: req.body.skills.split(","),
+      github: req.body.github
+    };
     Profile.findOne({ user: req.user.id }).then(profile => {
       if (profile) {
         // update
@@ -108,18 +111,10 @@ router.post(
           { new: true }
         ).then(profile => res.send(profile));
       } else {
-        //FOLLOWING PART COMMENTED OUT, USED IN UDEMY TOUTORIAL, DONT   UNDERSTAND WHY
-        // create
-        // Profile.findOne({ handle: req.body.handle }).then(profile => {
-        //   if (profile) {
-        //     errors.handle = "that handle already exists";
-        //     return res.status(400).send(errors);
-        //   }
         const newProfile = new Profile(profileFields);
         Profile.create(newProfile)
           .then(profile => res.send(profile))
           .catch(err => res.send(err));
-        // });
       }
     });
   }
@@ -132,20 +127,25 @@ router.post(
   "/experience",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    const newExperience = {};
-    const errors = {};
-    if (req.body.title) newExperience.title = req.body.title;
-    if (req.body.company) newExperience.company = req.body.company;
-    if (req.body.from) newExperience.from = req.body.from;
-    if (req.body.to) newExperience.to = req.body.to;
-    if (req.body.current) newExperience.current = req.body.current;
+    const { errors, isValid } = validateExperienceInput(req.body);
+    if (!isValid) {
+      return res.status(400).send(errors);
+    }
+    const newExperience = {
+      title: req.body.title,
+      company: req.body.company,
+      from: req.body.from,
+      to: req.body.to,
+      current: req.body.current
+    };
     Profile.findOne({ user: req.user.id }).then(profile => {
       if (!profile) {
         errors.noProfile = "there is no user profile";
         return res.status(404).send(errors);
       }
       profile.experience.unshift(newExperience);
-      Profile.create(profile)
+      profile
+        .save()
         .then(profile => res.send(profile))
         .catch(err => console.log(err));
     });
@@ -159,21 +159,26 @@ router.post(
   "/education",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    const newEducation = {};
-    const errors = {};
-    if (req.body.title) newEducation.title = req.body.title;
-    if (req.body.school) newEducation.school = req.body.school;
-    if (req.body.degree) newEducation.degree = req.body.degree;
-    if (req.body.from) newEducation.from = req.body.from;
-    if (req.body.to) newEducation.to = req.body.to;
-    if (req.body.current) newEducation.current = req.body.current;
+    const { errors, isValid } = validateEducationInput(req.body);
+    if (!isValid) {
+      return res.status(400).send(errors);
+    }
+    const newEducation = {
+      title: req.body.title,
+      school: req.body.school,
+      degree: req.body.degree,
+      from: req.body.from,
+      to: req.body.to,
+      current: req.body.current
+    };
     Profile.findOne({ user: req.user.id }).then(profile => {
       if (!profile) {
         errors.noProfile = "there is no user profile";
         return res.status(404).send(errors);
       }
       profile.education.unshift(newEducation);
-      Profile.create(profile)
+      profile
+        .save()
         .then(profile => res.send(profile))
         .catch(err => console.log(err));
     });

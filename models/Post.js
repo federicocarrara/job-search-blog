@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const Post = new mongoose.Schema({
+const PostSchema = new mongoose.Schema({
   user: {
     type: Schema.Types.ObjectId,
     ref: "userAuth"
@@ -8,6 +8,9 @@ const Post = new mongoose.Schema({
   text: {
     type: String,
     required: true
+  },
+  name: {
+    type: String
   },
   date: {
     type: Date,
@@ -26,20 +29,14 @@ const Post = new mongoose.Schema({
       user: {
         type: Schema.Types.ObjectId,
         ref: "userAuth"
-      }
-    },
-    {
+      },
       name: {
         type: String
-      }
-    },
-    {
+      },
       text: {
         type: String,
         required: true
-      }
-    },
-    {
+      },
       date: {
         type: Date,
         default: Date.now
@@ -47,3 +44,5 @@ const Post = new mongoose.Schema({
     }
   ]
 });
+
+module.exports = mongoose.model("post", PostSchema);
