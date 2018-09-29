@@ -15,13 +15,11 @@ router.get(
   "/",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    const errors = {};
     Profile.findOne({ user: req.user._id })
       .populate("user")
       .then(profile => {
         if (!profile) {
-          errors.noProfile = "there is no user profile";
-          return res.status(404).send(errors);
+          return res.status(404).send("there is no user profile");
         }
         return res.send(profile);
       })
@@ -60,7 +58,7 @@ router.get("/user/:user_id", (req, res) => {
       }
       return res.send(profile);
     })
-    // need to hard code the error underneath because the not mathced id with mongoose would throw the .catch error
+    // need to hard code the error underneath because the id not mathced with mongoose would throw the .catch error
     .catch(err => res.status(404).send("user id not matched"));
 });
 
@@ -68,13 +66,11 @@ router.get("/user/:user_id", (req, res) => {
 // desc:    get all profiles
 // access:  public
 router.get("/all", (req, res) => {
-  const errors = {};
   Profile.find({})
     .populate("user", ["name", "imageUrl"])
     .then(profiles => {
       if (profiles.length === 0) {
-        errors.noProfiles = "no existing profiles";
-        return res.status(404).send(errors);
+        return res.status(404).send("no existing profiles");
       }
       return res.send(profiles);
     })
@@ -93,7 +89,7 @@ router.post(
       return res.status(400).send(errors);
     }
     const profileFields = {
-      user: req.user,
+      user: req.user.id,
       handle: req.body.handle,
       bio: req.body.bio,
       company: req.body.company,

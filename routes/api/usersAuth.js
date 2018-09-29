@@ -54,6 +54,7 @@ router.post("/login", (req, res) => {
   }
   const email = req.body.email;
   const password = req.body.password;
+  // findone({email}) because ES6 email:email same of email
   UserAuth.findOne({ email }).then(user => {
     if (!user) {
       return res.status(404).send("user not found");
