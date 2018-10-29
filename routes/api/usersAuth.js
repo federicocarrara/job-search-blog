@@ -14,12 +14,12 @@ const validateLoginInput = require("../../validation/login");
 router.post("/register", (req, res) => {
   const { errors, isValid } = validateRegisterInput(req.body);
   if (!isValid) {
-    return res.status(400).send(errors);
+    return res.status(400).send({ errors });
   }
   UserAuth.findOne({ email: req.body.email }).then(user => {
     if (user) {
       errors.email = "email already exist";
-      return res.status(400).send(errors);
+      return res.status(400).send({ errors });
     } else {
       const newUser = new UserAuth({
         name: req.body.name,
@@ -50,14 +50,15 @@ router.post("/register", (req, res) => {
 router.post("/login", (req, res) => {
   const { errors, isValid } = validateLoginInput(req.body);
   if (!isValid) {
-    return res.status(400).send(errors);
+    return res.status(400).send({ errors });
   }
   const email = req.body.email;
   const password = req.body.password;
   // findone({email}) because ES6 email:email same of email
   UserAuth.findOne({ email }).then(user => {
     if (!user) {
-      return res.status(404).send("user not found");
+      errors.notFound = "user not found";
+      return res.status(404).send({ errors });
     }
     bcrypt.compare(password, user.password).then(matchedPwd => {
       if (matchedPwd) {
@@ -77,7 +78,8 @@ router.post("/login", (req, res) => {
           }
         );
       } else {
-        return res.status(400).send("wrong password");
+        errors.wrongPassword = "wrong password";
+        return res.status(400).send({ errors });
       }
     });
   });

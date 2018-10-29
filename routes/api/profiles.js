@@ -86,7 +86,7 @@ router.post(
   (req, res) => {
     const { errors, isValid } = validateProfileInput(req.body);
     if (!isValid) {
-      return res.status(400).send(errors);
+      return res.status(400).send({ errors });
     }
     const profileFields = {
       user: req.user.id,
@@ -125,7 +125,7 @@ router.post(
   (req, res) => {
     const { errors, isValid } = validateExperienceInput(req.body);
     if (!isValid) {
-      return res.status(400).send(errors);
+      return res.status(400).send({ errors });
     }
     const newExperience = {
       title: req.body.title,
@@ -137,7 +137,7 @@ router.post(
     Profile.findOne({ user: req.user.id }).then(profile => {
       if (!profile) {
         errors.noProfile = "there is no user profile";
-        return res.status(404).send(errors);
+        return res.status(404).send({ errors });
       }
       profile.experience.unshift(newExperience);
       profile
@@ -157,7 +157,7 @@ router.post(
   (req, res) => {
     const { errors, isValid } = validateEducationInput(req.body);
     if (!isValid) {
-      return res.status(400).send(errors);
+      return res.status(400).send({ errors });
     }
     const newEducation = {
       title: req.body.title,
@@ -170,7 +170,7 @@ router.post(
     Profile.findOne({ user: req.user.id }).then(profile => {
       if (!profile) {
         errors.noProfile = "there is no user profile";
-        return res.status(404).send(errors);
+        return res.status(404).send({ errors });
       }
       profile.education.unshift(newEducation);
       profile

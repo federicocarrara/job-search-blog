@@ -1,6 +1,9 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
+import { withRouter } from "react-router-dom";
+import { loginUser } from "../actions/authActions";
 
-export default class Login extends Component {
+class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -13,10 +16,11 @@ export default class Login extends Component {
   };
   onSubmit = e => {
     e.preventDefault();
-    console.log({
+    const userData = {
       email: this.state.email,
       password: this.state.password
-    });
+    };
+    this.props.loginUser(userData);
   };
   render() {
     return (
@@ -40,3 +44,13 @@ export default class Login extends Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  auth: state.auth,
+  errors: state.errors
+});
+
+export default connect(
+  mapStateToProps,
+  { loginUser }
+)(withRouter(Login));
